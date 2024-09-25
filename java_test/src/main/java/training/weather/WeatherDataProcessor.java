@@ -18,21 +18,11 @@ public class WeatherDataProcessor {
         JSONArray dailyResults = weatherData.getJSONObject("daily").getJSONArray("time");
         JSONArray weatherCodeResults = weatherData.getJSONObject("daily").getJSONArray("weathercode");
 
-        int dateIndex = findDateIndex(dailyResults, formattedDate);
-
-        if (dateIndex != -1) {
-            int weatherCode = weatherCodeResults.getInt(dateIndex);
-            return Optional.of(ForecastEnum.getEnumByCode(weatherCode).getDescription());
-        }
-
-        return Optional.empty();
-    }
-
-    public int findDateIndex(JSONArray dailyResults, String formattedDate) {
         return IntStream.range(0, dailyResults.length())
-                .filter(i -> dailyResults.getString(i).equals(formattedDate))
-                .findFirst()
-                .orElse(-1);
+                .filter(i -> formattedDate.equals(dailyResults.getString(i)))
+                .mapToObj(i -> ForecastEnum.getEnumByCode(weatherCodeResults.getInt(i)))
+                .map(ForecastEnum::getDescription)
+                .findFirst();
     }
 }
 

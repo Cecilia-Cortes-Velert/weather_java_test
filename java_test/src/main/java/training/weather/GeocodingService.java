@@ -20,12 +20,8 @@ public class GeocodingService {
         String response = request.execute().parseAsString();
         JSONObject locationJson = new JSONObject(response);
 
-        if (locationJson.has("longt") && locationJson.has("latt")) {
-            String longitude = locationJson.getString("longt");
-            String latitude = locationJson.getString("latt");
-
-            return Optional.of(new Coordinates(latitude, longitude));
-        }
-        return Optional.empty();
+        return Optional.of(locationJson)
+                .filter(json -> json.has("longt") && json.has("latt"))
+                .map(json -> new Coordinates(json.getString("latt"), json.getString("longt")));
     }
 }
