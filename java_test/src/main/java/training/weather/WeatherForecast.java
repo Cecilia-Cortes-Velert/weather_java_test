@@ -20,17 +20,16 @@ public class WeatherForecast {
 	public Optional<String> getCityWeather(String city, LocalDate date) throws IOException {
 		LocalDate targetDate = Optional.ofNullable(date).orElse(LocalDate.now());
 
-		if (targetDate.isBefore(LocalDate.now().plusDays(7))) {
-			Optional<Coordinates> coordinatesOpt = geocodingService.getCoordinates(city);
-
-			if (coordinatesOpt.isPresent()) {
-				Coordinates coordinates = coordinatesOpt.get();
-				JSONObject weatherData = meteoService.getWeatherData(coordinates.getLatitude(), coordinates.getLongitude());
-				String formattedDate = weatherDataProcessor.formatTargetDate(targetDate);
-				return weatherDataProcessor.getWeatherDescriptionForDate(weatherData, formattedDate);
-			}
-		}
-		return Optional.empty();
+		return Optional.of(targetDate)
+				.filter(dateToCheck -> dateToCheck.isBefore(LocalDate.now().plusDays(7)))
+				.flatMap(dateToCheck ->
+						geocodingService.getCoordinates(city)
+								.flatMap(coordinates ->
+										meteoService.getWeatherData(coordinates.getLatitude(), coordinates.getLongitude())
+												.map(weatherData -> weatherDataProcessor
+														.getWeatherDescriptionForDate(weatherData, weatherDataProcessor.formatTargetDate(targetDate)))
+								)
+				).orElse(Optional.empty());
 	}
 }
 
