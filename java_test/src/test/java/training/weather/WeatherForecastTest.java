@@ -37,6 +37,16 @@ public class WeatherForecastTest {
 	@Test
 	public void testGetCityWeather_SuccessfulForecast() throws IOException {
 
+
+		//when
+		when(mockGeocodingService.getCoordinates("Madrid"))
+				.thenThrow(new IOException("Simulated IOException"));
+		//then
+		Optional<String> forecast = weatherForecast.getCityWeather("Madrid", targetDate);
+		assertTrue("Forecast should be present", forecast.isPresent());
+		forecast.ifPresent(System.out::println);
+		//verify
+
 	}
 
 	@Test
