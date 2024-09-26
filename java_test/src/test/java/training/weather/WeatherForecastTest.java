@@ -2,6 +2,7 @@ package training.weather;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -21,9 +22,15 @@ public class WeatherForecastTest {
 	private LocalDate targetDate;
 
 	@Before
-	public void setUp() {
+	public void setUp() throws IOException {
+		mockMeteoService = Mockito.mock(MeteoService.class);
+		mockGeocodingService = Mockito.mock(GeocodingService.class);
+		weatherDataProcessor = new WeatherDataProcessor();
 		weatherForecast = new WeatherForecast();
 		targetDate = LocalDate.now();
+		coordinates = new Coordinates("40.4168", "-3.7038");
+		when(mockGeocodingService.getCoordinates("Madrid"))
+				.thenReturn(Optional.of(coordinates));
 	}
 
 	@Test
