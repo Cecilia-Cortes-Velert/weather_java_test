@@ -1,5 +1,7 @@
 package training.weather;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -24,30 +26,27 @@ public class WeatherForecastTest {
 	private String city;
 
 	@Before
-	public void setUp() {
+	public void setUp() throws IOException {
 		mockMeteoService = Mockito.mock(MeteoService.class);
 		mockGeocodingService = Mockito.mock(GeocodingService.class);
 		weatherDataProcessor = new WeatherDataProcessor();
 		weatherForecast = new WeatherForecast(mockGeocodingService, mockMeteoService, weatherDataProcessor);
 		targetDate = LocalDate.now();
 		coordinates = new Coordinates("40.4168", "-3.7038");
-
-	}
-
-	@Test
-	public void testGetCityWeather_SuccessfulForecast() throws IOException {
-
-
-		//when
 		when(mockGeocodingService.getCoordinates("Madrid"))
-				.thenThrow(new IOException("Simulated IOException"));
-		//then
-		Optional<String> forecast = weatherForecast.getCityWeather("Madrid", targetDate);
-		assertTrue("Forecast should be present", forecast.isPresent());
-		forecast.ifPresent(System.out::println);
-		//verify
+				.thenReturn(Optional.of(coordinates));
+		JSONObject mockWeatherData = new JSONObject();
+		mockWeatherData.put("daily", new JSONObject()
+				.put("time", new JSONArray().put(targetDate.toString()))
+				.put("weathercode", new JSONArray().put(0))); // Código de buen tiempo
+
+		when(mockMeteoService.getWeatherData(coordinates.getLatitude(), coordinates.getLongitude()))
+				.thenReturn(mockWeatherData);
 
 	}
+
+
+
 
 	@Test
 	public void testGetWeatherDescriptionForCoordinates_IOException() throws IOException {
@@ -60,6 +59,12 @@ public class WeatherForecastTest {
 	}
 
 
+	@Test
+	public void testGetCityWeather_SuccessfulForecast() throws IOException {
+		Optional<String> forecast = weatherForecast.getCityWeather("Madrid", targetDate);
+		assertTrue("Forecast should be present", forecast.isPresent());
+		forecast.ifPresent(System.out::println);
+	}
 
 	@Test
 	public void testGetCityWeather_EmptyForecast() throws IOException {
@@ -74,6 +79,23 @@ public class WeatherForecastTest {
 		assertFalse("Forecast should be empty for an invalid city", forecast.isPresent());
 	}
 
+	@Test
+	public void testGetCityWeather_ValidCityOutsideRange() throws IOException {
+		LocalDate targetDate = LocalDate.now().plusDays(10);
+		Optional<String> result = weatherForecast.getCityWeather("Madrid", targetDate);
+
+		assertFalse("Expected forecast to be empty for dates beyond the forecast range", result.isPresent());
+	}
+
+	@Test
+	public void testGetCityWeather_NoCoordinates() throws IOException {
+		LocalDate targetDate = LocalDate.now();
+		when(mockGeocodingService.getCoordinates("UnknownCity")).thenReturn(Optional.empty());
+
+		Optional<String> result = weatherForecast.getCityWeather("UnknownCity", targetDate);
+
+		assertFalse("Expected forecast to be empty for a city with no coordinates", result.isPresent());
+	}
 }
 
 

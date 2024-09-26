@@ -14,7 +14,8 @@ public class WeatherForecast {
 	private final WeatherDataProcessor weatherDataProcessor;
 
 	public WeatherForecast(GeocodingService geocodingService, MeteoService meteoService, WeatherDataProcessor weatherDataProcessor) {
-		this.geocodingService =  geocodingService;
+
+		this.geocodingService = geocodingService;
 		this.meteoService = meteoService;
 		this.weatherDataProcessor = weatherDataProcessor;
 	}
