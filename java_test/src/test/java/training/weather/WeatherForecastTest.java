@@ -95,6 +95,8 @@ public class WeatherForecastTest {
 		Optional<String> result = weatherForecast.getCityWeather("UnknownCity", targetDate);
 
 		assertFalse("Expected forecast to be empty for a city with no coordinates", result.isPresent());
+		Mockito.verify(mockGeocodingService).getCoordinates("UnknownCity");
+
 	}
 }
 
