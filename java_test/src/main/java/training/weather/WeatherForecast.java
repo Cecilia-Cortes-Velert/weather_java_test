@@ -22,16 +22,10 @@ public class WeatherForecast {
 	public Optional<String> getCityWeather(String city, LocalDate date) {
 		LocalDate targetDate = Optional.ofNullable(date).orElse(LocalDate.now());
 
-		return Optional.of(targetDate)
-				.filter(dateToCheck -> dateToCheck.isBefore(LocalDate.now().plusDays(7)))
-				.flatMap(dateToCheck ->
-						geocodingService.getCoordinates(city)
-								.flatMap(coordinates ->
-										meteoService.getWeatherData(coordinates.getLatitude(), coordinates.getLongitude())
-												.map(weatherData -> weatherDataProcessor
-														.getWeatherDescriptionForDate(weatherData, weatherDataProcessor.formatTargetDate(targetDate)))
-								)
-				).orElse(Optional.empty());
+		return targetDate.isBefore(LocalDate.now().plusDays(7))
+				? geocodingService.getCoordinates(city)
+				.flatMap(coordinates -> weatherDataProcessor.getWeatherDescriptionForCoordinates(coordinates, targetDate, meteoService))
+				: Optional.empty();
 	}
 }
 
