@@ -1,6 +1,8 @@
 package training.weather;
 
 import org.json.JSONObject;
+import training.weather.exception.CoordinatesNotFoundException;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -17,7 +19,7 @@ public class WeatherForecast {
 		this.weatherDataProcessor = new WeatherDataProcessor();
 	}
 
-	public Optional<String> getCityWeather(String city, LocalDate date) throws IOException {
+	public Optional<String> getCityWeather(String city, LocalDate date) {
 		LocalDate targetDate = Optional.ofNullable(date).orElse(LocalDate.now());
 
 		return Optional.of(targetDate)
