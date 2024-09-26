@@ -3,6 +3,7 @@ package training.weather;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -23,6 +24,17 @@ public class WeatherDataProcessor {
                 .mapToObj(i -> ForecastEnum.getEnumByCode(weatherCodeResults.getInt(i)))
                 .map(ForecastEnum::getDescription)
                 .findFirst();
+    }
+
+    public Optional<String> getWeatherDescriptionForCoordinates(Coordinates coordinates, LocalDate targetDate, MeteoService meteoService) {
+        try {
+            JSONObject weatherData = meteoService.getWeatherData(coordinates.getLatitude(), coordinates.getLongitude());
+            String formattedDate = formatTargetDate(targetDate);
+            return getWeatherDescriptionForDate(weatherData, formattedDate);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
     }
 }
 
