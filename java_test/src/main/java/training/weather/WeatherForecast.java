@@ -13,13 +13,13 @@ public class WeatherForecast {
 	private final MeteoService meteoService;
 	private final WeatherDataProcessor weatherDataProcessor;
 
-	public WeatherForecast() {
-		this.geocodingService = new GeocodingService();
-		this.meteoService = new MeteoService();
-		this.weatherDataProcessor = new WeatherDataProcessor();
+	public WeatherForecast(GeocodingService geocodingService, MeteoService meteoService, WeatherDataProcessor weatherDataProcessor) {
+		this.geocodingService =  geocodingService;
+		this.meteoService = meteoService;
+		this.weatherDataProcessor = weatherDataProcessor;
 	}
 
-	public Optional<String> getCityWeather(String city, LocalDate date) {
+	public Optional<String> getCityWeather(String city, LocalDate date) throws IOException {
 		LocalDate targetDate = Optional.ofNullable(date).orElse(LocalDate.now());
 
 		return targetDate.isBefore(LocalDate.now().plusDays(7))
